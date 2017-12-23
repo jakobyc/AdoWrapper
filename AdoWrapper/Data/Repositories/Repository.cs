@@ -18,7 +18,7 @@ namespace AdoWrapper.Data.Repositories
             get
             {
                 connectionFactory = connectionFactory ?? new ConnectionFactory();
-                return ConnectionFactory;
+                return connectionFactory;
             }
             set
             {
@@ -28,22 +28,22 @@ namespace AdoWrapper.Data.Repositories
 
         public Repository(string name)
         {
-            connection = connectionFactory.CreateConnection(name);
+            connection = ConnectionFactory.CreateConnection(name);
         }
 
         public Repository(string name, string provider)
         {
-            connection = connectionFactory.CreateConnection(name, provider);
+            connection = ConnectionFactory.CreateConnection(name, provider);
         }
 
         public Repository(string name, IConnectionFactory connectionFactory)
         {
-            connection = connectionFactory.CreateConnection(name);
+            connection = ConnectionFactory.CreateConnection(name);
         }
 
         public Repository(string name, string provider, IConnectionFactory connectionFactory)
         {
-            connection = connectionFactory.CreateConnection(name, provider);
+            connection = ConnectionFactory.CreateConnection(name, provider);
         }
 
         /// <summary>
@@ -79,6 +79,27 @@ namespace AdoWrapper.Data.Repositories
                     connection = null;
                 }
             }
+        }
+
+        protected virtual void AddParameter(IDbCommand command, string parameter, object value)
+        {
+            IDbDataParameter param = command.CreateParameter();
+            param.ParameterName = parameter;
+            param.Value = value;
+
+            command.Parameters.Add(param);
+        }
+
+        protected DataTable GetDataTable(IDbCommand command)
+        {
+            DataTable dt = new DataTable();
+
+            using (IDataReader reader = command.ExecuteReader())
+            {
+                dt.Load(reader);    
+            }
+
+            return dt;
         }
     }
 }
