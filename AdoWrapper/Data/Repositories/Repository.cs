@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 using System.Data.Common;
+using AdoWrapper.Data.Maps;
 
 namespace AdoWrapper.Data.Repositories
 {
@@ -113,6 +114,30 @@ namespace AdoWrapper.Data.Repositories
                 }
                 return command;
             }
+        }
+
+        protected virtual ICollection<T> Execute<T>(string query) where T : new()
+        {
+            return Execute<T>(query, null);
+        }
+
+        protected virtual ICollection<T> Execute<T>(string query, IDictionary<string, object> parameters) where T : new()
+        {
+            ICollection<T> collection = new List<T>();
+
+            using (IDbConnection connection = CreateConnection())
+            {
+                using (IDbCommand command = Execute(connection, query, parameters))
+                {
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        ColumnMap map = new ColumnMap();
+
+                        collection = map.MapCollection<T>(reader);
+                    }
+                }
+            }
+            return collection;
         }
 
         protected virtual IDataReader ExecuteReader(IDbConnection connection, string query)

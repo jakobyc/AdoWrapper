@@ -41,8 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Attributes\ColumnAttribute.cs" />
     <Compile Include="Data\ConnectionFactory.cs" />
     <Compile Include="Data\IConnectionFactory.cs" />
+    <Compile Include="Data\Maps\ColumnMap.cs" />
     <Compile Include="Data\Repositories\Repository.cs" />
     <Compile Include="Data\Repositories\SQLiteRepository.cs" />
     <Compile Include="Data\Repositories\SqlRepository.cs" />
