@@ -103,17 +103,16 @@ namespace AdoWrapper.Data.Repositories
         /// <returns>Command object.</returns>
         private IDbCommand Execute(IDbConnection connection, string query, IDictionary<string, object> parameters)
         {
-            using (IDbCommand command = CreateCommand(connection, query))
+            IDbCommand command = CreateCommand(connection, query);
+
+            if (parameters != null && parameters.Count > 0)
             {
-                if (parameters != null && parameters.Count > 0)
+                foreach (KeyValuePair<string, object> parameter in parameters)
                 {
-                    foreach (KeyValuePair<string, object> parameter in parameters)
-                    {
-                        AddParameter(command, parameter.Key, parameter.Value);
-                    }
+                    AddParameter(command, parameter.Key, parameter.Value);
                 }
-                return command;
             }
+            return command;
         }
 
         protected virtual ICollection<T> Execute<T>(string query) where T : new()
@@ -153,7 +152,10 @@ namespace AdoWrapper.Data.Repositories
         /// <returns>DataReader</param>
         protected virtual IDataReader ExecuteReader(IDbConnection connection, string query, IDictionary<string, object> parameters)
         {
-            return Execute(connection, query, parameters).ExecuteReader();
+            using (IDbCommand command = Execute(connection, query, parameters))
+            {
+                return command.ExecuteReader();
+            }
         }
 
         protected virtual int ExecuteNonQuery(string query)
@@ -171,7 +173,10 @@ namespace AdoWrapper.Data.Repositories
         {
             using (IDbConnection connection = CreateConnection())
             {
-                return Execute(connection, query, parameters).ExecuteNonQuery();
+                using (IDbCommand command = Execute(connection, query, parameters))
+                {
+                    return command.ExecuteNonQuery();
+                }
             }
         }
 
@@ -192,7 +197,10 @@ namespace AdoWrapper.Data.Repositories
 
             using (IDbConnection connection = CreateConnection())
             {
-                dt.Load(Execute(connection, query, parameters).ExecuteReader());
+                using (IDbCommand command = Execute(connection, query, parameters))
+                {
+                    dt.Load(command.ExecuteReader());
+                }
             }
 
             return dt;
@@ -204,7 +212,7 @@ namespace AdoWrapper.Data.Repositories
         protected DataTable GetDataTable(IDbCommand command)
         {
             DataTable dt = new DataTable();
-
+            
             using (IDataReader reader = command.ExecuteReader())
             {
                 dt.Load(reader);
