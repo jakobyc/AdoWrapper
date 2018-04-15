@@ -7,4 +7,5 @@
 - [x] Non-query support
 - [x] IDataReader support
 - [x] IDataReader map attributes
+  - [ ] Test cross-provider support
 - [ ] IDataReader extensions
