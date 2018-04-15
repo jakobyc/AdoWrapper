@@ -1,9 +1,10 @@
 # Roadmap
 
+
 - [x] Connections
   - ConnectionFactory
 - [x] DataTable support
 - [x] Non-query support
 - [x] IDataReader support
+- [x] IDataReader map attributes
 - [ ] IDataReader extensions
-- [ ] IDataReader Map attributes
