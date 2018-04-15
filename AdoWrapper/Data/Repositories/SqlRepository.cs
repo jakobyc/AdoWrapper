@@ -13,7 +13,7 @@ namespace AdoWrapper.Data.Repositories
     {
         private const string provider = "System.Data.SqlClient";
 
-        public SqlRepository(string name) : base(name, provider)
+        public SqlRepository(string name) : base(name)
         {
         }
     }

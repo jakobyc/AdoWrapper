@@ -43,7 +43,6 @@
   <ItemGroup>
     <Compile Include="Data\ConnectionFactory.cs" />
     <Compile Include="Data\IConnectionFactory.cs" />
-    <Compile Include="Data\Repositories\IRepository.cs" />
     <Compile Include="Data\Repositories\Repository.cs" />
     <Compile Include="Data\Repositories\SQLiteRepository.cs" />
     <Compile Include="Data\Repositories\SqlRepository.cs" />
