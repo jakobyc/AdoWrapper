@@ -101,7 +101,7 @@ namespace AdoWrapper.Data.Repositories
         /// <param name="query">SQL string.</param>
         /// <param name="parameters">Dictionary of parameters. Key = parameter name, value = parameter value.</param>
         /// <returns>Command object.</returns>
-        private IDbCommand Execute(IDbConnection connection, string query, IDictionary<string, object> parameters)
+        private IDbCommand GetCommand(IDbConnection connection, string query, IDictionary<string, object> parameters)
         {
             IDbCommand command = CreateCommand(connection, query);
 
@@ -126,7 +126,7 @@ namespace AdoWrapper.Data.Repositories
 
             using (IDbConnection connection = CreateConnection())
             {
-                using (IDbCommand command = Execute(connection, query, parameters))
+                using (IDbCommand command = GetCommand(connection, query, parameters))
                 {
                     using (IDataReader reader = command.ExecuteReader())
                     {
@@ -152,7 +152,7 @@ namespace AdoWrapper.Data.Repositories
         /// <returns>DataReader</param>
         protected virtual IDataReader ExecuteReader(IDbConnection connection, string query, IDictionary<string, object> parameters)
         {
-            using (IDbCommand command = Execute(connection, query, parameters))
+            using (IDbCommand command = GetCommand(connection, query, parameters))
             {
                 return command.ExecuteReader();
             }
@@ -173,7 +173,7 @@ namespace AdoWrapper.Data.Repositories
         {
             using (IDbConnection connection = CreateConnection())
             {
-                using (IDbCommand command = Execute(connection, query, parameters))
+                using (IDbCommand command = GetCommand(connection, query, parameters))
                 {
                     return command.ExecuteNonQuery();
                 }
@@ -197,7 +197,7 @@ namespace AdoWrapper.Data.Repositories
 
             using (IDbConnection connection = CreateConnection())
             {
-                using (IDbCommand command = Execute(connection, query, parameters))
+                using (IDbCommand command = GetCommand(connection, query, parameters))
                 {
                     dt.Load(command.ExecuteReader());
                 }

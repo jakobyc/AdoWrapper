@@ -45,13 +45,12 @@ namespace AdoWrapper.Data.Maps
                     {
                         try
                         {
-                            // TODO: Create IDataReader extension method:
                             if (!reader.IsDBNull(reader.GetOrdinal(attribute.Name)))
                             {
                                 property.SetValue(mapType, reader[attribute.Name]);
                             }
                         }
-                        catch (IndexOutOfRangeException) { throw new Exception($"Column ,'{attribute.Name}' not found."); }
+                        catch (IndexOutOfRangeException) { throw new Exception($"Column, '{attribute.Name}' not found."); }
 
                     }
                 }
