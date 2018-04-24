@@ -158,23 +158,44 @@ namespace AdoWrapper.Data.Repositories
             }
         }
 
-        protected virtual int ExecuteNonQuery(string query)
+        protected virtual int ExecuteNonQuery(string sql)
         {
-            return ExecuteNonQuery(query, null);
+            return ExecuteNonQuery(sql, null);
         }
 
         /// <summary>
         /// Execute a SQL command.
         /// </summary>
-        /// <param name="query">SQL string.</param>
+        /// <param name="sql">SQL string.</param>
         /// <param name="parameters">Dictionary of parameters. Key = parameter name, value = parameter value.</param>
         /// <returns>Affected row count.</returns>
-        protected virtual int ExecuteNonQuery(string query, IDictionary<string, object> parameters)
+        protected virtual int ExecuteNonQuery(string sql, IDictionary<string, object> parameters)
         {
             using (IDbConnection connection = CreateConnection())
             {
-                using (IDbCommand command = GetCommand(connection, query, parameters))
+                using (IDbCommand command = GetCommand(connection, sql, parameters))
                 {
+                    return command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        protected virtual int ExecuteProcedure(string procedureName)
+        {
+            return ExecuteProcedure(procedureName, null);
+        }
+
+        /// <summary>
+        /// Execute a stored procedure.
+        /// </summary>
+        protected virtual int ExecuteProcedure(string procedureName, IDictionary<string, object> parameters)
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                using (IDbCommand command = GetCommand(connection, procedureName, parameters))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
                     return command.ExecuteNonQuery();
                 }
             }
