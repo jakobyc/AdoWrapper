@@ -218,6 +218,25 @@ namespace AdoWrapper.Data.Repositories
             }
         }
 
+        protected virtual T ExecuteScalar<T>(string query) where T : IComparable
+        {
+            return ExecuteScalar<T>(query, null);
+        }
+
+        protected virtual T ExecuteScalar<T>(string query, Parameters.AdoParameters parameters) where T : IComparable
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                using (IDbCommand command = GetCommand(connection, query, parameters))
+                {
+                    object o = command.ExecuteScalar();
+                    object casted =  Convert.ChangeType(o, typeof(T));
+                    
+                    return (T)casted;
+                }
+            }
+        }
+
         protected virtual DataTable GetDataTable(string query)
         {
             return GetDataTable(query, null);

@@ -51,7 +51,6 @@ namespace AdoWrapper.Data.Maps
                             }
                         }
                         catch (IndexOutOfRangeException) { throw new Exception($"Column, '{attribute.Name}' not found."); }
-
                     }
                 }
 
