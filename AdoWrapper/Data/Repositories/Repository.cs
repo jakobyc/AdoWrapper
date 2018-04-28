@@ -85,8 +85,9 @@ namespace AdoWrapper.Data.Repositories
         }
 
         /// <summary>
-        /// Create a command by string.
+        /// Create a command.
         /// </summary>
+        /// <param name="query">SQL string.</param>
         protected virtual IDbCommand CreateCommand(IDbConnection connection, string query)
         {
             IDbCommand command = connection.CreateCommand();
@@ -115,11 +116,22 @@ namespace AdoWrapper.Data.Repositories
             return command;
         }
 
+        /// <summary>
+        /// Execute a SQL query and map the results to a collection of a type.
+        /// </summary>
+        /// <param name="query">SQL string.</param>
+        /// <returns>Collection of type T.</returns>
         protected virtual ICollection<T> Execute<T>(string query) where T : new()
         {
             return Execute<T>(query, null);
         }
 
+        /// <summary>
+        /// Execute a SQL query and map the results to a collection of a type.
+        /// </summary>
+        /// <param name="query">SQL string.</param>
+        /// <param name="parameters">Dictionary of parameters. Key = parameter name, value = parameter value.</param>
+        /// <returns>Collection of type T.</returns>
         protected virtual ICollection<T> Execute<T>(string query, IDictionary<string, object> parameters) where T : new()
         {
             ICollection<T> collection = new List<T>();
@@ -139,6 +151,11 @@ namespace AdoWrapper.Data.Repositories
             return collection;
         }
 
+        /// <summary>
+        /// Execute a SQL command and return the DataReader.
+        /// </summary>
+        /// <param name="query">SQL string.</param>
+        /// <returns>DataReader</param>
         protected virtual IDataReader ExecuteReader(IDbConnection connection, string query)
         {
             return ExecuteReader(connection, query, null);

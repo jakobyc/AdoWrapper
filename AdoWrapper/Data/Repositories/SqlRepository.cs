@@ -20,6 +20,7 @@ namespace AdoWrapper.Data.Repositories
 
         /// <summary>
         /// Disable a job by job name.
+        /// <para>This will not stop a job that is executing.</para>
         /// </summary>
         /// <param name="name">Name of a job on SQL Server.</param>
         /// <returns></returns>
@@ -37,6 +38,7 @@ namespace AdoWrapper.Data.Repositories
 
         /// <summary>
         /// Disable jobs by category name.
+        /// <para>This will not stop a job that is executing.</para>
         /// </summary>
         /// <param name="category">Name of a job category on SQL Server.</param>
         public virtual int DisableJobs(string category)
@@ -53,6 +55,7 @@ namespace AdoWrapper.Data.Repositories
 
         /// <summary>
         /// Disable jobs by category id.
+        /// <para>This will not stop a job that is executing.</para>
         /// </summary>
         /// <param name="categoryid">Id of a job category on SQL Server.</param>
         public virtual int DisableJobs(int categoryId)
@@ -114,6 +117,32 @@ namespace AdoWrapper.Data.Repositories
                             SET enabled = 1
                             WHERE enabled = 0
                               AND category_id = @category", parameters);
+        }
+
+        /// <summary>
+        /// Start a job.
+        /// </summary>
+        /// <param name="name">Name of a job on SQL Server.</param>
+        public virtual int StartJob(string name)
+        {
+            AdoParameters parameters = new AdoParameters();
+            parameters.Add("@name", name);
+
+            return ExecuteNonQuery($@"
+                            EXEC msdb.dbo.sp_start_job @name", parameters);
+        }
+
+        /// <summary>
+        /// Stop a job that is currently executing.
+        /// </summary>
+        /// <param name="name">Name of a job on SQL Server.</param>
+        public virtual int StopJob(string name)
+        {
+            AdoParameters parameters = new AdoParameters();
+            parameters.Add("@name", name);
+
+            return ExecuteNonQuery($@"
+                            EXEC msdb.dbo.sp_stop_job @name", parameters);
         }
     }
 }
