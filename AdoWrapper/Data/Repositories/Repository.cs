@@ -90,10 +90,7 @@ namespace AdoWrapper.Data.Repositories
         /// <param name="query">SQL string.</param>
         protected virtual IDbCommand CreateCommand(IDbConnection connection, string query)
         {
-            IDbCommand command = connection.CreateCommand();
-            command.CommandText = query;
-                
-            return command;
+            return CreateCommand(connection, query, null);
         }
 
         /// <summary>
@@ -102,9 +99,10 @@ namespace AdoWrapper.Data.Repositories
         /// <param name="query">SQL string.</param>
         /// <param name="parameters">Dictionary of parameters. Key = parameter name, value = parameter value.</param>
         /// <returns>Command object.</returns>
-        private IDbCommand GetCommand(IDbConnection connection, string query, IDictionary<string, object> parameters)
+        protected virtual IDbCommand CreateCommand(IDbConnection connection, string query, IDictionary<string, object> parameters)
         {
-            IDbCommand command = CreateCommand(connection, query);
+            IDbCommand command = connection.CreateCommand();
+            command.CommandText = query;
 
             if (parameters != null && parameters.Count > 0)
             {
@@ -138,7 +136,7 @@ namespace AdoWrapper.Data.Repositories
 
             using (IDbConnection connection = CreateConnection())
             {
-                using (IDbCommand command = GetCommand(connection, query, parameters))
+                using (IDbCommand command = CreateCommand(connection, query, parameters))
                 {
                     using (IDataReader reader = command.ExecuteReader())
                     {
@@ -169,7 +167,7 @@ namespace AdoWrapper.Data.Repositories
         /// <returns>DataReader</param>
         protected virtual IDataReader ExecuteReader(IDbConnection connection, string query, IDictionary<string, object> parameters)
         {
-            using (IDbCommand command = GetCommand(connection, query, parameters))
+            using (IDbCommand command = CreateCommand(connection, query, parameters))
             {
                 return command.ExecuteReader();
             }
@@ -190,7 +188,7 @@ namespace AdoWrapper.Data.Repositories
         {
             using (IDbConnection connection = CreateConnection())
             {
-                using (IDbCommand command = GetCommand(connection, sql, parameters))
+                using (IDbCommand command = CreateCommand(connection, sql, parameters))
                 {
                     return command.ExecuteNonQuery();
                 }
@@ -209,7 +207,7 @@ namespace AdoWrapper.Data.Repositories
         {
             using (IDbConnection connection = CreateConnection())
             {
-                using (IDbCommand command = GetCommand(connection, procedureName, parameters))
+                using (IDbCommand command = CreateCommand(connection, procedureName, parameters))
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
@@ -227,12 +225,15 @@ namespace AdoWrapper.Data.Repositories
         {
             using (IDbConnection connection = CreateConnection())
             {
-                using (IDbCommand command = GetCommand(connection, query, parameters))
+                using (IDbCommand command = CreateCommand(connection, query, parameters))
                 {
                     object o = command.ExecuteScalar();
-                    object casted =  Convert.ChangeType(o, typeof(T));
-                    
-                    return (T)casted;
+                    if (o != null)
+                    {
+                        object casted = Convert.ChangeType(o, typeof(T));
+                        return (T)casted;
+                    }
+                    return default(T);
                 }
             }
         }
@@ -254,7 +255,7 @@ namespace AdoWrapper.Data.Repositories
 
             using (IDbConnection connection = CreateConnection())
             {
-                using (IDbCommand command = GetCommand(connection, query, parameters))
+                using (IDbCommand command = CreateCommand(connection, query, parameters))
                 {
                     dt.Load(command.ExecuteReader());
                 }
