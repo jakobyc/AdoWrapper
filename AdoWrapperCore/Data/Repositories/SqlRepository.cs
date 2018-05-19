@@ -1,11 +1,11 @@
-﻿using AdoWrapper.Data.Parameters;
+﻿using AdoWrapperCore.Data.Parameters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AdoWrapper.Data.Repositories
+namespace AdoWrapperCore.Data.Repositories
 {
     /// <summary>
     ///  SQL Server repository.
