@@ -51,6 +51,7 @@ namespace AdoWrapperCore.Data.Maps
                             }
                         }
                         catch (IndexOutOfRangeException) { throw new Exception($"Column, '{attribute.Name}' not found."); }
+                        catch (ArgumentOutOfRangeException) { throw new Exception($"Column, '{attribute.Name}' not found."); }
                     }
                 }
 

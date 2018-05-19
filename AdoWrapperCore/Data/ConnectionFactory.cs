@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.Configuration;
 using System.Reflection;
 
@@ -37,21 +38,30 @@ namespace AdoWrapperCore.Data
             return null;
         }
 
-        public static DbProviderFactory GetDbProviderFactory(string provider)
+        private static DbProviderFactory GetDbProviderFactory(string provider)
         {
-            Assembly assembly = Assembly.Load(provider);
-            if (assembly != null)
+            if (provider == "System.Data.SqlClient")
             {
-                //DbProviderFactory factory = a.CreateInstance($"{provider}.SqlFactory") as DbProviderFactory;
+                return SqlClientFactory.Instance;
             }
+            else
+            {
+                Assembly assembly = Assembly.Load(provider);
+                if (assembly != null)
+                {
+                    FieldInfo instance = assembly.GetType(GetProviderFactoryName(provider)).GetField("Instance");
+                    DbProviderFactory factory = instance.GetValue(null) as DbProviderFactory;
 
+                    return factory;
+                }
+            }
             return null;
         }
 
         /// <summary>
         /// Get the full name of a provider factory.
         /// </summary>
-        public static string GetProviderFactoryName(string provider)
+        private static string GetProviderFactoryName(string provider)
         {
             switch (provider)
             {

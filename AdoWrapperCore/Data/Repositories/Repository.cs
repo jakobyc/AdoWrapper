@@ -37,6 +37,7 @@ namespace AdoWrapperCore.Data.Repositories
         public Repository(string provider, string connectionString)
         {
             this.Provider = provider;
+            this.ConnectionString = connectionString;
         }
 
         /// <summary>
