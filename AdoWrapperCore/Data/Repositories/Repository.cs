@@ -118,6 +118,32 @@ namespace AdoWrapperCore.Data.Repositories
         }
 
         /// <summary>
+        /// Execute a SQL query and map the results to a collection of a type.
+        /// </summary>
+        /// <param name="query">SQL string.</param>
+        /// <param name="parameters">Dictionary of parameters. Key = parameter name, value = parameter value.</param>
+        /// <returns>Collection of type T.</returns>
+        protected virtual ICollection<T> Execute<T>(string query, Func<IDataReader, T> map,  IDictionary<string, object> parameters = null) where T : new()
+        {
+            ICollection<T> collection = new List<T>();
+
+            using (IDbConnection connection = CreateConnection())
+            {
+                using (IDbCommand command = CreateCommand(connection, query, parameters))
+                {
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            collection.Add(map.Invoke(reader));
+                        }
+                    }
+                }
+            }
+            return collection;
+        }
+
+        /// <summary>
         /// Execute a SQL command and return the DataReader.
         /// </summary>
         /// <param name="query">SQL string.</param>
