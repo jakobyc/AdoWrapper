@@ -1,4 +1,5 @@
 ﻿using AdoWrapperCore.Data.Attributes;
+using AdoWrapperCore.Data.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -33,31 +34,30 @@ namespace AdoWrapperCore.Data.Maps
         {
             ICollection<T> collection = new List<T>();
             PropertyInfo[] properties = typeof(T).GetProperties();
+            IEnumerable<string> columns = reader.GetColumns();
 
-            while(reader.Read())
+            if (columns != null && columns.Count() > 0)
             {
-                T mapType = new T();
-
-                foreach (PropertyInfo property in properties)
+                while (reader.Read())
                 {
-                    ColumnAttribute attribute = property.GetCustomAttribute(typeof(ColumnAttribute)) as ColumnAttribute;
-                    if (attribute != null)
+                    T mapType = new T();
+
+                    foreach (PropertyInfo property in properties)
                     {
-                        try
+                        ColumnAttribute attribute = property.GetCustomAttribute(typeof(ColumnAttribute)) as ColumnAttribute;
+                        // If attribute exists and a column exists with the attribute's value:
+                        if (attribute != null && columns.Any(x => x == attribute.Name))
                         {
                             if (!reader.IsDBNull(reader.GetOrdinal(attribute.Name)))
                             {
                                 property.SetValue(mapType, reader[attribute.Name]);
                             }
                         }
-                        catch (IndexOutOfRangeException) { throw new Exception($"Column, '{attribute.Name}' not found."); }
-                        catch (ArgumentOutOfRangeException) { throw new Exception($"Column, '{attribute.Name}' not found."); }
                     }
+
+                    collection.Add(mapType);
                 }
-
-                collection.Add(mapType);
             }
-
             return collection;
         }
     }

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 
-namespace AdoWrapperCore.Data
+namespace AdoWrapperCore.Data.Extensions
 {
     public static class DataReaderExtension
     {
@@ -14,7 +14,7 @@ namespace AdoWrapperCore.Data
             try
             {
                 int index = reader.GetOrdinal(column);
-
+                
                 if (!reader.IsDBNull(index))
                 {
                     return (T)reader[index];
@@ -23,6 +23,19 @@ namespace AdoWrapperCore.Data
             catch (IndexOutOfRangeException) { throw new Exception($"Column, '{column}' not found."); }
 
             return default(T);
+        }
+
+        public static IEnumerable<string> GetColumns(this IDataReader reader)
+        {
+            IEnumerable<string> columns = new List<string>();
+            if (reader != null && reader.FieldCount > 0)
+            {
+                columns = Enumerable.Range(0, reader.FieldCount)
+                                    .Select(index => reader.GetName(index))
+                                    .ToList();
+            }
+
+            return columns;
         }
     }
 }
