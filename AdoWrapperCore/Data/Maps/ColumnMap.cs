@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace AdoWrapperCore.Data.Maps
 {
-    public class ColumnMap
+    internal class ColumnMap
     {
         private readonly AdoCache cache = new AdoCache();
         

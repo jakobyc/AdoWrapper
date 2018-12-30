@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Data.Common;
 using AdoWrapperCore.Data.Maps;
-using AdoWrapperCore.Data.Parameters;
 
 namespace AdoWrapperCore.Data.Repositories
 {
