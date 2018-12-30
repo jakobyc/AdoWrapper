@@ -1,9 +1,9 @@
 ﻿using AdoWrapperCore.Data.Attributes;
+using AdoWrapperCore.Data.Caching;
 using AdoWrapperCore.Data.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -13,6 +13,8 @@ namespace AdoWrapperCore.Data.Maps
 {
     public class ColumnMap
     {
+        private readonly AdoCache cache = new AdoCache();
+        
         internal T MapSingle<T>(IDataReader reader) where T : new()
         {
             T mapType = new T();
@@ -20,13 +22,9 @@ namespace AdoWrapperCore.Data.Maps
 
             if (columns != null && columns.Count() > 0)
             {
-                IDictionary<PropertyInfo, string> mappableProperties = GetMappableProperties(typeof(T).GetProperties(), columns);
-                if (mappableProperties != null && mappableProperties.Count > 0)
+                if (reader.Read())
                 {
-                    if (reader.Read())
-                    {
-                        MapProperties(mappableProperties, mapType, reader);
-                    }
+                    mapType = MapColumns<T>(typeof(T).GetProperties(), columns, reader);
                 }
             }
             
@@ -48,20 +46,7 @@ namespace AdoWrapperCore.Data.Maps
                         collection.Add(mappedType);
                     }
                 }
-                /*IDictionary<PropertyInfo, string> mappableProperties = GetMappableProperties(properties, columns);
-                if (mappableProperties != null && mappableProperties.Count > 0)
-                {
-                    while (reader.Read())
-                    {
-                        T mapType = MapProperties<T>(mappableProperties, reader);
-                        if (mapType != null)
-                        {
-                            collection.Add(mapType);
-                        }
-                    }
-                }*/
             }
-
             return collection;
         }
 
@@ -71,36 +56,27 @@ namespace AdoWrapperCore.Data.Maps
         /// <param name="columns">Valid column names.</param>
         private IDictionary<PropertyInfo, string> GetMappableProperties(PropertyInfo[] properties, IEnumerable<string> columns)
         {
+            string key = $"mappableProps_{properties.FirstOrDefault()?.DeclaringType.AssemblyQualifiedName}";
+
             // Property/ColumnName pairs:
-            IDictionary<PropertyInfo, string> mappableProperties = new Dictionary<PropertyInfo, string>();
-
-            foreach (PropertyInfo property in properties)
+            IDictionary<PropertyInfo, string> mappableProperties = cache.GetOrAdd(key, () =>
             {
-                ColumnAttribute attribute = property.GetCustomAttribute(typeof(ColumnAttribute)) as ColumnAttribute;
-                if (attribute != null && columns.Any(x => x == attribute.Name))
-                {
-                    mappableProperties.Add(property, attribute.Name);
-                }
-            }
-            return mappableProperties;
-        }
+                IDictionary<PropertyInfo, string> mappableProps = new Dictionary<PropertyInfo, string>();
 
-        /// <summary>
-        /// Check to see if the property contains a ColumnAttribute. If it does, attempt to get a value from the data reader and map it to 
-        /// the mapped object.
-        /// </summary>
-        /// <param name="mappedObject">Original mapped object.</param>
-        private void MapColumnAttribute(PropertyInfo property, IEnumerable<string> columns, object mappedObject, IDataReader reader)
-        {
-            ColumnAttribute attribute = property.GetCustomAttribute(typeof(ColumnAttribute)) as ColumnAttribute;
-            // If attribute exists and a column exists with the attribute's value:
-            if (attribute != null && columns.Any(x => x == attribute.Name))
-            {
-                if (!reader.IsDBNull(reader.GetOrdinal(attribute.Name)))
+                foreach (PropertyInfo property in properties)
                 {
-                    property.SetValue(mappedObject, reader[attribute.Name]);
+                    ColumnAttribute attribute = property.GetCustomAttribute(typeof(ColumnAttribute)) as ColumnAttribute;
+                    if (attribute != null)
+                    {
+                        mappableProps.Add(property, attribute.Name);
+                    }
                 }
-            }
+
+                return mappableProps;
+            });
+
+            // Return properties that have valid column names:
+            return mappableProperties.Where(x => columns.Any(c => c == x.Value)) as IDictionary<PropertyInfo, string>;
         }
 
         private void MapColumn(KeyValuePair<PropertyInfo, string> propertyColumnPair, object mappedObject, IDataReader reader)
@@ -141,44 +117,12 @@ namespace AdoWrapperCore.Data.Maps
             return default(T);
         }
 
-        /// <summary>
-        /// Check to see if the property has a HasColumns attribute. If it does, map all nested ColumnAttributes/HasColumnsAttributes
-        /// and update the original mapped object.
-        /// </summary>
-        /// <param name="mappedObject">Original mapped object.</param>
-        private void MapHasColumnsAttribute(PropertyInfo property, IEnumerable<string> columns, object mappedObject, IDataReader reader)
-        {
-            HasColumnsAttribute attrib = property.GetCustomAttribute(typeof(HasColumnsAttribute)) as HasColumnsAttribute;
-            if (attrib != null)
-            {
-                object childProperty = Activator.CreateInstance(property.PropertyType);
-                PropertyInfo[] innerProperties = property.PropertyType.GetProperties();
-
-                foreach (PropertyInfo innerProperty in innerProperties)
-                {
-                    // Recursively handle nested HasColumns attributes:
-                    MapHasColumnsAttribute(innerProperty, columns, childProperty, reader);
-
-                    MapColumnAttribute(innerProperty, columns, childProperty, reader);
-                }
-                property.SetValue(mappedObject, childProperty);
-            }
-        }
-
         private void MapProperties(IDictionary<PropertyInfo, string> mappableProperties, object mappedObject, IDataReader reader)
         {
             foreach (KeyValuePair<PropertyInfo, string> propertyColumnPair in mappableProperties)
             {
                 MapColumn(propertyColumnPair, mappedObject, reader);
             }
-
-            /*foreach (PropertyInfo property in properties)
-            {
-
-                MapColumnAttribute(property, columns, mappedObject, reader);
-
-                MapHasColumnsAttribute(property, columns, mappedObject, reader);
-            }*/
         }
     }
 }
