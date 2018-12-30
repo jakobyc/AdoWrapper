@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Data.Common;
 using AdoWrapperCore.Data.Maps;
+using AdoWrapperCore.Data.Parameters;
 
 namespace AdoWrapperCore.Data.Repositories
 {
@@ -71,21 +72,12 @@ namespace AdoWrapperCore.Data.Repositories
         }
 
         /// <summary>
-        /// Create a command.
-        /// </summary>
-        /// <param name="query">SQL string.</param>
-        protected virtual IDbCommand CreateCommand(IDbConnection connection, string query)
-        {
-            return CreateCommand(connection, query, null);
-        }
-
-        /// <summary>
-        /// Execute a SQL command.
+        /// Create a SQL command.
         /// </summary>
         /// <param name="query">SQL string.</param>
         /// <param name="parameters">Dictionary of parameters. Key = parameter name, value = parameter value.</param>
         /// <returns>Command object.</returns>
-        protected virtual IDbCommand CreateCommand(IDbConnection connection, string query, IDictionary<string, object> parameters)
+        protected virtual IDbCommand CreateCommand(IDbConnection connection, string query, IDictionary<string, object> parameters = null)
         {
             IDbCommand command = connection.CreateCommand();
             command.CommandText = query;
@@ -104,19 +96,9 @@ namespace AdoWrapperCore.Data.Repositories
         /// Execute a SQL query and map the results to a collection of a type.
         /// </summary>
         /// <param name="query">SQL string.</param>
-        /// <returns>Collection of type T.</returns>
-        protected virtual ICollection<T> Execute<T>(string query) where T : new()
-        {
-            return Execute<T>(query, null);
-        }
-
-        /// <summary>
-        /// Execute a SQL query and map the results to a collection of a type.
-        /// </summary>
-        /// <param name="query">SQL string.</param>
         /// <param name="parameters">Dictionary of parameters. Key = parameter name, value = parameter value.</param>
         /// <returns>Collection of type T.</returns>
-        protected virtual ICollection<T> Execute<T>(string query, IDictionary<string, object> parameters) where T : new()
+        protected virtual ICollection<T> Execute<T>(string query, IDictionary<string, object> parameters = null) where T : new()
         {
             ICollection<T> collection = new List<T>();
 
@@ -136,13 +118,29 @@ namespace AdoWrapperCore.Data.Repositories
         }
 
         /// <summary>
-        /// Execute a SQL command and return the DataReader.
+        /// Execute a SQL query and map the results to a collection of a type.
         /// </summary>
         /// <param name="query">SQL string.</param>
-        /// <returns>DataReader</param>
-        protected virtual IDataReader ExecuteReader(IDbConnection connection, string query)
+        /// <param name="parameters">Dictionary of parameters. Key = parameter name, value = parameter value.</param>
+        /// <returns>Collection of type T.</returns>
+        protected virtual ICollection<T> Execute<T>(string query, Func<IDataReader, T> map,  IDictionary<string, object> parameters = null) where T : new()
         {
-            return ExecuteReader(connection, query, null);
+            ICollection<T> collection = new List<T>();
+
+            using (IDbConnection connection = CreateConnection())
+            {
+                using (IDbCommand command = CreateCommand(connection, query, parameters))
+                {
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            collection.Add(map.Invoke(reader));
+                        }
+                    }
+                }
+            }
+            return collection;
         }
 
         /// <summary>
@@ -151,17 +149,12 @@ namespace AdoWrapperCore.Data.Repositories
         /// <param name="query">SQL string.</param>
         /// <param name="parameters">Dictionary of parameters. Key = parameter name, value = parameter value.</param>
         /// <returns>DataReader</param>
-        protected virtual IDataReader ExecuteReader(IDbConnection connection, string query, IDictionary<string, object> parameters)
+        protected virtual IDataReader ExecuteReader(IDbConnection connection, string query, IDictionary<string, object> parameters = null)
         {
             using (IDbCommand command = CreateCommand(connection, query, parameters))
             {
                 return command.ExecuteReader();
             }
-        }
-
-        protected virtual int ExecuteNonQuery(string sql)
-        {
-            return ExecuteNonQuery(sql, null);
         }
 
         /// <summary>
@@ -170,7 +163,7 @@ namespace AdoWrapperCore.Data.Repositories
         /// <param name="sql">SQL string.</param>
         /// <param name="parameters">Dictionary of parameters. Key = parameter name, value = parameter value.</param>
         /// <returns>Affected row count.</returns>
-        protected virtual int ExecuteNonQuery(string sql, IDictionary<string, object> parameters)
+        protected virtual int ExecuteNonQuery(string sql, IDictionary<string, object> parameters = null)
         {
             using (IDbConnection connection = CreateConnection())
             {
@@ -181,15 +174,10 @@ namespace AdoWrapperCore.Data.Repositories
             }
         }
 
-        protected virtual int ExecuteProcedure(string procedureName)
-        {
-            return ExecuteProcedure(procedureName, null);
-        }
-
         /// <summary>
         /// Execute a stored procedure.
         /// </summary>
-        protected virtual int ExecuteProcedure(string procedureName, IDictionary<string, object> parameters)
+        protected virtual int ExecuteProcedure(string procedureName, IDictionary<string, object> parameters = null)
         {
             using (IDbConnection connection = CreateConnection())
             {
@@ -202,12 +190,7 @@ namespace AdoWrapperCore.Data.Repositories
             }
         }
 
-        protected virtual T ExecuteScalar<T>(string query) where T : IComparable
-        {
-            return ExecuteScalar<T>(query, null);
-        }
-
-        protected virtual T ExecuteScalar<T>(string query, Parameters.AdoParameters parameters) where T : IComparable
+        protected virtual T ExecuteScalar<T>(string query, IDictionary<string, object> parameters = null) where T : IConvertible
         {
             using (IDbConnection connection = CreateConnection())
             {
@@ -224,18 +207,13 @@ namespace AdoWrapperCore.Data.Repositories
             }
         }
 
-        protected virtual DataTable GetDataTable(string query)
-        {
-            return GetDataTable(query, null);
-        }
-
         /// <summary>
         /// Execute a SQL command.
         /// </summary>
         /// <param name="query">SQL string.</param>
         /// <param name="parameters">Dictionary of parameters. Key = parameter name, value = parameter value.</param>
         /// <returns>DataTable.</returns>
-        protected virtual DataTable GetDataTable(string query, IDictionary<string, object> parameters)
+        protected virtual DataTable GetDataTable(string query, IDictionary<string, object> parameters = null)
         {
             DataTable dt = new DataTable();
 
