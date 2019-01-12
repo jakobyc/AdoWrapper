@@ -1,15 +1,13 @@
 # ADO.NET Wrapper
-Convenient ADO.NET wrapper for various providers.
+Convenient ADO.NET wrapper for [.NET Standard](https://docs.microsoft.com/en-us/dotnet/standard/net-standard).
 
 ## Examples:
-### SQL Server:
-----
-#### DataReaders:
-##### With mapping:
+### DataReaders:
+#### With mapping:
 ```
-public TestRepository : SqlRepository
+public class TestRepository : Repository<SqlConnection>
 {
-  public TestRepository() : base("ConnectionStringName") { }
+  public TestRepository(string connectionString) : base(connectionString) { }
   
   // DTO:
   public class User
@@ -34,7 +32,7 @@ public TestRepository : SqlRepository
   }
 }
 ```
-##### Without mapping:
+#### Without mapping:
 ```
 public ICollection<User> GetUsers()
 {
@@ -56,9 +54,9 @@ public ICollection<User> GetUsers()
 ----
 #### DataTables:
 ```
-public TestRepository : SqlRepository
+public class TestRepository : Repository<SqliteConnection>
 {
-  public TestRepository() : base("ConnectionStringName") { }
+  public TestRepository(string connectionString) : base(connectionString) { }
   
   // Without parameters:
   public DataTable GetUsers()
@@ -67,7 +65,7 @@ public TestRepository : SqlRepository
   }
   
   // With parameters:
-  public DataTable GetUser(string name)
+  public DataTable GetUser(string id, string name, string email)
   {
     AdoParameters parameters = new AdoParameters()
     {
@@ -84,7 +82,7 @@ public TestRepository : SqlRepository
 }
 ```
 ----
-#### Non-queries:
+### Non-queries:
 ```
 public int AddUser(string name, string email)
 {
