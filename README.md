@@ -45,7 +45,7 @@ public ICollection<User> GetUsers()
                       Id = reader.Get<string>("Id"),
                       DisplayName = reader.Get<string>("Name"),
                       Email = reader.Get<string>("Email"),
-                      EmailConfirmed = reader.Get<bool>("Conmfirmed"),
+                      EmailConfirmed = reader.Get<bool>("Confirmed"),
                       JoinedDate = reader.Get<DateTime>("JoinedOn")
                     };
                  });
