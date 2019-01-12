@@ -4,22 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data;
-using System.Data.Common;
 using AdoWrapperCore.Data.Maps;
-using AdoWrapperCore.Data.Parameters;
 
 namespace AdoWrapperCore.Data.Repositories
 {
-    public abstract class Repository : IDisposable
+    public abstract class Repository<ConnectionType> : IDisposable where ConnectionType : IDbConnection, new()
     {
         /// <summary>
         /// Connection string.
         /// </summary>
         protected string ConnectionString { get; set; }
-        /// <summary>
-        /// Name of ADO.NET provider.
-        /// </summary>
-        protected string Provider { get; set; }
 
         private IConnectionFactory connectionFactory;
         protected IConnectionFactory ConnectionFactory
@@ -35,9 +29,8 @@ namespace AdoWrapperCore.Data.Repositories
             }
         }
 
-        public Repository(string provider, string connectionString)
+        public Repository(string connectionString)
         {
-            this.Provider = provider;
             this.ConnectionString = connectionString;
         }
 
@@ -68,7 +61,7 @@ namespace AdoWrapperCore.Data.Repositories
         /// </summary>
         protected virtual IDbConnection CreateConnection()
         {
-            return ConnectionFactory.CreateConnection(Provider, ConnectionString);
+            return ConnectionFactory.CreateConnection<ConnectionType>(ConnectionString);
         }
 
         /// <summary>
@@ -109,11 +102,11 @@ namespace AdoWrapperCore.Data.Repositories
                     using (IDataReader reader = command.ExecuteReader())
                     {
                         ColumnMap map = new ColumnMap();
-
                         collection = map.MapCollection<T>(reader);
                     }
                 }
             }
+            
             return collection;
         }
 
@@ -256,11 +249,6 @@ namespace AdoWrapperCore.Data.Repositories
                 if (connectionFactory != null)
                 {
                     connectionFactory = null;
-                }
-
-                if (!string.IsNullOrEmpty(Provider))
-                {
-                    Provider = null;
                 }
             }
         }
