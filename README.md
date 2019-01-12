@@ -5,9 +5,9 @@ Convenient ADO.NET wrapper for [.NET Standard](https://docs.microsoft.com/en-us/
 ### DataReaders:
 #### With mapping:
 ```
-public class TestRepository : Repository
+public class UserRepository : Repository
 {
-  public TestRepository(RepositoryConfig config) : base(config) { }
+  public UserRepository(RepositoryConfig config) : base(config) { }
   
   // DTO:
   public class User
@@ -54,9 +54,9 @@ public ICollection<User> GetUsers()
 ----
 #### DataTables:
 ```
-public class TestRepository : Repository
+public class UserRepository : Repository
 {
-  public TestRepository(RepositoryConfig config) : base(config) { }
+  public UserRepository(RepositoryConfig config) : base(config) { }
   
   // Without parameters:
   public DataTable GetUsers()
