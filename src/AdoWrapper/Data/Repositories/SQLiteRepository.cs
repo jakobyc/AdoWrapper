@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AdoWrapperCore.Data.Repositories
+namespace AdoWrapper.Data.Repositories
 {
     /// <summary>
     /// SQLite repository.

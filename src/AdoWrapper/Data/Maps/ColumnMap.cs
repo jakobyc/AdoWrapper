@@ -1,6 +1,6 @@
-﻿using AdoWrapperCore.Data.Attributes;
-using AdoWrapperCore.Data.Caching;
-using AdoWrapperCore.Data.Extensions;
+﻿using AdoWrapper.Data.Attributes;
+using AdoWrapper.Data.Caching;
+using AdoWrapper.Data.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AdoWrapperCore.Data.Maps
+namespace AdoWrapper.Data.Maps
 {
     internal class ColumnMap
     {

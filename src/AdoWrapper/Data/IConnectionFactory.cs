@@ -1,7 +1,7 @@
 ﻿using System.Configuration;
 using System.Data;
 
-namespace AdoWrapperCore.Data
+namespace AdoWrapper.Data
 {
     public interface IConnectionFactory
     {

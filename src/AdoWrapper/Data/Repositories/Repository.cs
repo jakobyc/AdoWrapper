@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data;
-using AdoWrapperCore.Data.Maps;
+using AdoWrapper.Data.Maps;
 
-namespace AdoWrapperCore.Data.Repositories
+namespace AdoWrapper.Data.Repositories
 {
     public abstract class Repository<ConnectionType> : IDisposable where ConnectionType : IDbConnection, new()
     {
