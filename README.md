@@ -1,5 +1,5 @@
 # ADO.NET Wrapper
-Convenient ADO.NET wrapper for various providers.
+Convenient ADO.NET wrapper for [.NET Standard](https://docs.microsoft.com/en-us/dotnet/standard/net-standard).
 
 ## Examples:
 ### DataReaders:
