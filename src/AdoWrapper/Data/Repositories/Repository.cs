@@ -93,7 +93,6 @@ namespace AdoWrapperCore.Data.Repositories
         /// <returns>Collection of type T.</returns>
         protected virtual ICollection<T2> Execute<T2>(string query, IDictionary<string, object> parameters = null) where T2 : new()
         {
-            System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
             ICollection<T2> collection = new List<T2>();
 
             using (IDbConnection connection = CreateConnection())
@@ -102,12 +101,8 @@ namespace AdoWrapperCore.Data.Repositories
                 {
                     using (IDataReader reader = command.ExecuteReader())
                     {
-                        watch.Start();
                         ColumnMap map = new ColumnMap();
-                        watch.Stop();
-                        watch.Restart();
                         collection = map.MapCollection<T2>(reader);
-                        watch.Stop();
                     }
                 }
             }
