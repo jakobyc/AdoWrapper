@@ -4,21 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data;
-using System.Data.Common;
 using AdoWrapperCore.Data.Maps;
 
 namespace AdoWrapperCore.Data.Repositories
 {
-    public abstract class Repository : IDisposable
+    public abstract class Repository<T> : IDisposable where T: IDbConnection, new()
     {
         /// <summary>
         /// Connection string.
         /// </summary>
         protected string ConnectionString { get; set; }
-        /// <summary>
-        /// Name of ADO.NET provider.
-        /// </summary>
-        protected string Provider { get; set; }
 
         private IConnectionFactory connectionFactory;
         protected IConnectionFactory ConnectionFactory
@@ -34,9 +29,8 @@ namespace AdoWrapperCore.Data.Repositories
             }
         }
 
-        public Repository(string provider, string connectionString)
+        public Repository(string connectionString)
         {
-            this.Provider = provider;
             this.ConnectionString = connectionString;
         }
 
@@ -67,7 +61,7 @@ namespace AdoWrapperCore.Data.Repositories
         /// </summary>
         protected virtual IDbConnection CreateConnection()
         {
-            return ConnectionFactory.CreateConnection(Provider, ConnectionString);
+            return ConnectionFactory.CreateConnection<T>(ConnectionString);
         }
 
         /// <summary>
@@ -97,10 +91,10 @@ namespace AdoWrapperCore.Data.Repositories
         /// <param name="query">SQL string.</param>
         /// <param name="parameters">Dictionary of parameters. Key = parameter name, value = parameter value.</param>
         /// <returns>Collection of type T.</returns>
-        protected virtual ICollection<T> Execute<T>(string query, IDictionary<string, object> parameters = null) where T : new()
+        protected virtual ICollection<T2> Execute<T2>(string query, IDictionary<string, object> parameters = null) where T2 : new()
         {
             System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
-            ICollection<T> collection = new List<T>();
+            ICollection<T2> collection = new List<T2>();
 
             using (IDbConnection connection = CreateConnection())
             {
@@ -112,7 +106,7 @@ namespace AdoWrapperCore.Data.Repositories
                         ColumnMap map = new ColumnMap();
                         watch.Stop();
                         watch.Restart();
-                        collection = map.MapCollection<T>(reader);
+                        collection = map.MapCollection<T2>(reader);
                         watch.Stop();
                     }
                 }
@@ -127,9 +121,9 @@ namespace AdoWrapperCore.Data.Repositories
         /// <param name="query">SQL string.</param>
         /// <param name="parameters">Dictionary of parameters. Key = parameter name, value = parameter value.</param>
         /// <returns>Collection of type T.</returns>
-        protected virtual ICollection<T> Execute<T>(string query, Func<IDataReader, T> map,  IDictionary<string, object> parameters = null) where T : new()
+        protected virtual ICollection<T2> Execute<T2>(string query, Func<IDataReader, T2> map,  IDictionary<string, object> parameters = null) where T2 : new()
         {
-            ICollection<T> collection = new List<T>();
+            ICollection<T2> collection = new List<T2>();
 
             using (IDbConnection connection = CreateConnection())
             {
@@ -194,7 +188,7 @@ namespace AdoWrapperCore.Data.Repositories
             }
         }
 
-        protected virtual T ExecuteScalar<T>(string query, IDictionary<string, object> parameters = null) where T : IConvertible
+        protected virtual T2 ExecuteScalar<T2>(string query, IDictionary<string, object> parameters = null) where T2 : IConvertible
         {
             using (IDbConnection connection = CreateConnection())
             {
@@ -204,9 +198,9 @@ namespace AdoWrapperCore.Data.Repositories
                     if (o != null)
                     {
                         object casted = Convert.ChangeType(o, typeof(T));
-                        return (T)casted;
+                        return (T2)casted;
                     }
-                    return default(T);
+                    return default(T2);
                 }
             }
         }
@@ -260,11 +254,6 @@ namespace AdoWrapperCore.Data.Repositories
                 if (connectionFactory != null)
                 {
                     connectionFactory = null;
-                }
-
-                if (!string.IsNullOrEmpty(Provider))
-                {
-                    Provider = null;
                 }
             }
         }

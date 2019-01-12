@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
-using System.Configuration;
 using System.Reflection;
 
 namespace AdoWrapperCore.Data
@@ -17,25 +16,20 @@ namespace AdoWrapperCore.Data
         /// Create a connection via a connection string.
         /// </summary>
         /// <param name="name">Name of the connection string in your config file.</param>
-        public IDbConnection CreateConnection(string provider, string connectionString)
+        public IDbConnection CreateConnection<T>(string connectionString) where T: IDbConnection, new()
         {
-            if (Valid(provider, connectionString))
+            if (!string.IsNullOrEmpty(connectionString))
             {
-                DbProviderFactory providerFactory = GetDbProviderFactory(provider);
-                if (providerFactory != null)
-                {
-                    IDbConnection connection = providerFactory.CreateConnection();
-                    connection.ConnectionString = connectionString;
-                    connection.Open();
+                IDbConnection connection = new T();
+                connection.ConnectionString = connectionString;
+                connection.Open();
 
-                    return connection;
-                }
-                else
-                {
-                    throw new Exception("Provider Factory not found.");
-                }
+                return connection;
             }
-            return null;
+            else
+            {
+                throw new Exception("Invalid connection string.");
+            }
         }
 
         private static DbProviderFactory GetDbProviderFactory(string provider)

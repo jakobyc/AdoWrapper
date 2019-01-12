@@ -1,6 +1,7 @@
 ﻿using AdoWrapperCore.Data.Parameters;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,13 +11,9 @@ namespace AdoWrapperCore.Data.Repositories
     /// <summary>
     ///  SQL Server repository.
     /// </summary>
-    public class SqlRepository : Repository
+    public class SqlRepository<T> : Repository<T> where T: IDbConnection, new()
     {
-        private const string provider = "System.Data.SqlClient";
-
-        public SqlRepository(string connectionString) : base(provider, connectionString)
-        {
-        }
+        public SqlRepository(string connectionString) : base(connectionString) { }
 
         /// <summary>
         /// Disable a job by job name.
