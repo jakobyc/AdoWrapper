@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 
-namespace AdoWrapperCore.Data
+namespace AdoWrapper.Data
 {
     public class ConnectionFactory : IConnectionFactory
     {

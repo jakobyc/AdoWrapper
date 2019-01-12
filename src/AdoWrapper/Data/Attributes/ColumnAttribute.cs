@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AdoWrapperCore.Data.Attributes
+namespace AdoWrapper.Data.Attributes
 {
     public class ColumnAttribute : Attribute
     {

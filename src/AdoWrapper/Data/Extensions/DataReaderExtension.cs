@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 
-namespace AdoWrapperCore.Data.Extensions
+namespace AdoWrapper.Data.Extensions
 {
     public static class DataReaderExtension
     {
