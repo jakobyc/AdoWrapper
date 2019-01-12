@@ -1,5 +1,5 @@
 # ADO.NET Wrapper
-Convenient ADO.NET wrapper for [.NET Standard](https://docs.microsoft.com/en-us/dotnet/standard/net-standard).
+Convenient ADO.NET wrapper for <a href="https://docs.microsoft.com/en-us/dotnet/standard/net-standard" target="_blank">.NET Standard</a>.
 
 ## Examples:
 ### DataReaders:
