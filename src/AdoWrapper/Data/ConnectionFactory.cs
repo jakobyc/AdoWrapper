@@ -31,59 +31,5 @@ namespace AdoWrapperCore.Data
                 throw new Exception("Invalid connection string.");
             }
         }
-
-        private static DbProviderFactory GetDbProviderFactory(string provider)
-        {
-            if (provider == "System.Data.SqlClient")
-            {
-                return SqlClientFactory.Instance;
-            }
-            else
-            {
-                Assembly assembly = Assembly.Load(provider);
-                if (assembly != null)
-                {
-                    FieldInfo instance = assembly.GetType(GetProviderFactoryName(provider)).GetField("Instance");
-                    DbProviderFactory factory = instance.GetValue(null) as DbProviderFactory;
-
-                    return factory;
-                }
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Get the full name of a provider factory.
-        /// </summary>
-        private static string GetProviderFactoryName(string provider)
-        {
-            switch (provider)
-            {
-                case ("Microsoft.Data.Sqlite"):
-                    return "Microsoft.Data.Sqlite.SqliteFactory";
-
-                case ("MySql.Data"):
-                    return "MySql.Data.MySqlClient.MySqlClientFactory";
-
-                case ("Npgsql"):
-                    return "Npgsql.NpgsqlFactory";
-
-                default:
-                    return null;
-            }
-        }
-
-        private bool Valid(string provider, string connectionString)
-        {
-            if (string.IsNullOrEmpty(provider))
-            {
-                throw new Exception("Please input a database provider.");
-            }
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                throw new Exception("Please provide a connection string.");
-            }
-            return true;
-        }
     }
 }
