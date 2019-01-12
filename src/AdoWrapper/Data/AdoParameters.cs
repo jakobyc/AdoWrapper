@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AdoWrapper.Data.Parameters
+namespace AdoWrapper.Data
 {
     public class AdoParameters : Dictionary<string, object>, IDictionary<string, object>
     {

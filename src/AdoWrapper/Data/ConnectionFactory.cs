@@ -7,26 +7,23 @@ using System.Data;
 
 namespace AdoWrapper.Data
 {
-    public class ConnectionFactory : IConnectionFactory
+    internal class ConnectionFactory : IConnectionFactory
     {
         /// <summary>
-        /// Create a connection via a connection string.
+        /// Create a connection.
         /// </summary>
         /// <param name="name">Name of the connection string in your config file.</param>
-        public IDbConnection CreateConnection<T>(string connectionString) where T: IDbConnection, new()
+        public IDbConnection CreateConnection(RepositoryConfig config)
         {
-            if (!string.IsNullOrEmpty(connectionString))
+            if (config != null)
             {
-                IDbConnection connection = new T();
-                connection.ConnectionString = connectionString;
+                IDbConnection connection = config.Connection;
+                connection.ConnectionString = config.ConnectionString;
                 connection.Open();
 
                 return connection;
             }
-            else
-            {
-                throw new Exception("Invalid connection string.");
-            }
+            return null;
         }
     }
 }
