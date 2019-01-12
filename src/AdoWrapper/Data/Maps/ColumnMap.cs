@@ -76,7 +76,7 @@ namespace AdoWrapperCore.Data.Maps
             });
 
             // Return properties that have valid column names:
-            return mappableProperties.Where(x => columns.Any(c => c == x.Value)) as IDictionary<PropertyInfo, string>;
+            return mappableProperties.Where(x => columns.Any(c => c == x.Value)).ToDictionary(pair => pair.Key, pair => pair.Value);
         }
 
         private void MapColumn(KeyValuePair<PropertyInfo, string> propertyColumnPair, object mappedObject, IDataReader reader)
