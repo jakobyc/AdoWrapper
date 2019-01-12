@@ -10,7 +10,7 @@ namespace AdoWrapper.Data
 {
     public abstract class Repository: IDisposable
     {
-        protected RepositoryConfig Config;
+        public RepositoryConfig Config { get; private set; }
 
         private IConnectionFactory connectionFactory;
         internal IConnectionFactory ConnectionFactory

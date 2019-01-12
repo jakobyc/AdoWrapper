@@ -5,35 +5,36 @@ using System.Text;
 
 namespace AdoWrapper.Data
 {
-    public class RepositoryConfig
+    public abstract class RepositoryConfig
     {
-        public string ConnectionString { get; private set; }
+        public string ConnectionString { get; protected set; }
 
-        public IDbConnection Connection { get; private set; }
+        public IDbConnection Connection { get; protected set; }
 
-        public RepositoryConfig(string connectionString, Type connection)
-        {
-            ChangeConnection(connectionString, connection);
-        }
-
-        public void ChangeConnection(string connectionString, Type connection = null)
+        public void ChangeConnection<T>(string connectionString) where T : IDbConnection, new()
         {
             if (!string.IsNullOrEmpty(connectionString))
             {
                 ConnectionString = connectionString;
 
-                if (connection != null && typeof(IDbConnection).IsAssignableFrom(connection))
-                {
-                    Connection = Activator.CreateInstance(connection) as IDbConnection;
-                }
-                else
-                {
-                    // If a connection type wasn't provided/valid, and Connection is null, throw an exception: 
-                    if (Connection == null)
-                    {
-                        throw new Exception("Please provide a IDbConnection type (i.e., SqlConnection, SqliteConnection).");
-                    }
-                }
+                Connection = new T();
+            }
+            else
+            {
+                throw new Exception("Invalid connection string.");
+            }
+        }
+    }
+
+    public class RepositoryConfig<ConnectionType> : RepositoryConfig where ConnectionType : IDbConnection, new() 
+    {
+        public RepositoryConfig(string connectionString)
+        {
+            if (!string.IsNullOrEmpty(connectionString))
+            {
+                ConnectionString = connectionString;
+
+                Connection = new ConnectionType();
             }
             else
             {
