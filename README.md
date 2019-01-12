@@ -2,7 +2,6 @@
 Convenient ADO.NET wrapper for various providers.
 
 ## Examples:
-----
 ### DataReaders:
 #### With mapping:
 ```
