@@ -1,4 +1,4 @@
-﻿using AdoWrapper.Data.Parameters;
+﻿using AdoWrapper.Data;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,9 +11,9 @@ namespace AdoWrapper.Data.Repositories
     /// <summary>
     ///  SQL Server repository.
     /// </summary>
-    public class SqlRepository<T> : Repository<T> where T: IDbConnection, new()
+    public class SqlRepository : Repository
     {
-        public SqlRepository(string connectionString) : base(connectionString) { }
+        public SqlRepository(RepositoryConfig config) : base(config) { }
 
         /// <summary>
         /// Disable a job by job name.

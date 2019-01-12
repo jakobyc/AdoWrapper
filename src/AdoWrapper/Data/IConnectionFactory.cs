@@ -3,12 +3,12 @@ using System.Data;
 
 namespace AdoWrapper.Data
 {
-    public interface IConnectionFactory
+    internal interface IConnectionFactory
     {
         /// <summary>
-        /// Create a connection with a connection string.
+        /// Create and open a connection.
         /// </summary>
         /// <param name="name">Connection string name.</param>
-        IDbConnection CreateConnection<T>(string connectionString) where T : IDbConnection, new();
+        IDbConnection CreateConnection(RepositoryConfig config);
     }
 }

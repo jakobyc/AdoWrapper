@@ -6,17 +6,14 @@ using System.Threading.Tasks;
 using System.Data;
 using AdoWrapper.Data.Maps;
 
-namespace AdoWrapper.Data.Repositories
+namespace AdoWrapper.Data
 {
-    public abstract class Repository<ConnectionType> : IDisposable where ConnectionType : IDbConnection, new()
+    public abstract class Repository: IDisposable
     {
-        /// <summary>
-        /// Connection string.
-        /// </summary>
-        protected string ConnectionString { get; set; }
+        protected RepositoryConfig Config;
 
         private IConnectionFactory connectionFactory;
-        protected IConnectionFactory ConnectionFactory
+        internal IConnectionFactory ConnectionFactory
         {
             get
             {
@@ -29,9 +26,18 @@ namespace AdoWrapper.Data.Repositories
             }
         }
 
-        public Repository(string connectionString)
+        public Repository(RepositoryConfig config)
         {
-            this.ConnectionString = connectionString;
+            if (config != null)
+            {
+                if (!string.IsNullOrEmpty(config.ConnectionString))
+                {
+                    if (config.Connection != null)
+                    {
+                        this.Config = config;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -61,7 +67,7 @@ namespace AdoWrapper.Data.Repositories
         /// </summary>
         protected virtual IDbConnection CreateConnection()
         {
-            return ConnectionFactory.CreateConnection<ConnectionType>(ConnectionString);
+            return ConnectionFactory.CreateConnection(Config);
         }
 
         /// <summary>
