@@ -8,7 +8,7 @@ using AdoWrapperCore.Data.Maps;
 
 namespace AdoWrapperCore.Data.Repositories
 {
-    public abstract class Repository<T> : IDisposable where T: IDbConnection, new()
+    public abstract class Repository<ConnectionType> : IDisposable where ConnectionType : IDbConnection, new()
     {
         /// <summary>
         /// Connection string.
@@ -61,7 +61,7 @@ namespace AdoWrapperCore.Data.Repositories
         /// </summary>
         protected virtual IDbConnection CreateConnection()
         {
-            return ConnectionFactory.CreateConnection<T>(ConnectionString);
+            return ConnectionFactory.CreateConnection<ConnectionType>(ConnectionString);
         }
 
         /// <summary>
@@ -91,9 +91,9 @@ namespace AdoWrapperCore.Data.Repositories
         /// <param name="query">SQL string.</param>
         /// <param name="parameters">Dictionary of parameters. Key = parameter name, value = parameter value.</param>
         /// <returns>Collection of type T.</returns>
-        protected virtual ICollection<T2> Execute<T2>(string query, IDictionary<string, object> parameters = null) where T2 : new()
+        protected virtual ICollection<T> Execute<T>(string query, IDictionary<string, object> parameters = null) where T : new()
         {
-            ICollection<T2> collection = new List<T2>();
+            ICollection<T> collection = new List<T>();
 
             using (IDbConnection connection = CreateConnection())
             {
@@ -102,7 +102,7 @@ namespace AdoWrapperCore.Data.Repositories
                     using (IDataReader reader = command.ExecuteReader())
                     {
                         ColumnMap map = new ColumnMap();
-                        collection = map.MapCollection<T2>(reader);
+                        collection = map.MapCollection<T>(reader);
                     }
                 }
             }
@@ -116,9 +116,9 @@ namespace AdoWrapperCore.Data.Repositories
         /// <param name="query">SQL string.</param>
         /// <param name="parameters">Dictionary of parameters. Key = parameter name, value = parameter value.</param>
         /// <returns>Collection of type T.</returns>
-        protected virtual ICollection<T2> Execute<T2>(string query, Func<IDataReader, T2> map,  IDictionary<string, object> parameters = null) where T2 : new()
+        protected virtual ICollection<T> Execute<T>(string query, Func<IDataReader, T> map,  IDictionary<string, object> parameters = null) where T : new()
         {
-            ICollection<T2> collection = new List<T2>();
+            ICollection<T> collection = new List<T>();
 
             using (IDbConnection connection = CreateConnection())
             {
@@ -183,7 +183,7 @@ namespace AdoWrapperCore.Data.Repositories
             }
         }
 
-        protected virtual T2 ExecuteScalar<T2>(string query, IDictionary<string, object> parameters = null) where T2 : IConvertible
+        protected virtual T ExecuteScalar<T>(string query, IDictionary<string, object> parameters = null) where T : IConvertible
         {
             using (IDbConnection connection = CreateConnection())
             {
@@ -193,9 +193,9 @@ namespace AdoWrapperCore.Data.Repositories
                     if (o != null)
                     {
                         object casted = Convert.ChangeType(o, typeof(T));
-                        return (T2)casted;
+                        return (T)casted;
                     }
-                    return default(T2);
+                    return default(T);
                 }
             }
         }
